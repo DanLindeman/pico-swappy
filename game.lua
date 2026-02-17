@@ -5,7 +5,6 @@ reading = false
 game_complete = false
 level_data = {
     -- 1-player
-    {name = "down in a hole", top_x=16, top_y=24, bot_x=26, bot_y=34, start="red"}, -- Re-check w/4 
     {name = "goals (move: d-pad)", top_x=29, top_y=0, bot_x=39, bot_y=8, start="red", hint="head to the goal that matches your color."}, -- Reach the goals
     {name = "through the door", top_x=40, top_y=0, bot_x=50, bot_y=8, start="red", hint="you can walk through a door if you match its color."}, -- What a door is
     
@@ -14,23 +13,23 @@ level_data = {
     {name = "seek alignment (swap: x)", top_x=29, top_y=9, bot_x=41, bot_y=21, start="red", hint="if two characters are aligned horizontally, you can swap them with x."}, -- Horizontal Swapping
     {name = "above // below (swap: x)", top_x=0, top_y=54, bot_x=14, bot_y=63, start="red", hint="if two characters are aligned vertically, you can swap them with x."}, -- Vertical Swapping
     {name = "we got this", top_x=0, top_y=26, bot_x=15, bot_y=31, start="red"}, -- Skill check: swapping/doors/goals
-    {name = "pushback", top_x=42, top_y=11, bot_x=57, bot_y=21, start="red"}, -- How to "Pushback" a character through a corridor of doors
-    {name = "sidelong", top_x=0, top_y=32, bot_x=12, bot_y=40, start="red"}, -- Move another character to their goal, ignore another
-    {name = "snakey", top_x=75, top_y=0, bot_x=89, bot_y=4, start="red"}, -- Reinforce: Sidelong
-    -- {name = "TODO: drag-along", top_x=42, top_y=11, bot_x=57, bot_y=21, start="red"}, -- Teach "Drag-along"
+    {name = "pushback", top_x=42, top_y=11, bot_x=57, bot_y=21, start="red"}, -- Teach: How to "Pushback" a character through a corridor of doors
+    {name = "sidelong", top_x=0, top_y=32, bot_x=12, bot_y=40, start="red"}, -- Teach: stranding. Move another character to their goal, ignore another
     {name = "oroboros", top_x=0, top_y=13, bot_x=12, bot_y=25, start="red"}, -- Skill check: horizontal and vertical swapping
+    {name = "snakey", top_x=75, top_y=0, bot_x=89, bot_y=4, start="red"}, -- Reinforce: Sidelong
+    {name = "seek open spaces", top_x=103, top_y=0, bot_x=117, bot_y=12, start="red"}, -- Reinforce: Sidelong
     
     -- 3-player
     {name = "they meet a third", top_x=0, top_y=41, bot_x=12, bot_y=53, start="red"}, -- Teach: strength of triad formation (all players aligned)
-    {name = "and it gets interesting", top_x=13, top_y=13, bot_x=25, bot_y=21, start="red"}, -- Sidelong + Pushback
-    {name = "fortress", top_x=0, top_y=0, bot_x=16, bot_y=12, start="red"}, -- Drag-along and triad
-    {name = "origin", top_x=75, top_y=5, bot_x=87, bot_y=16, start="red"}, -- Skill Check
-    {name = "a series of tubes", top_x=90, top_y=0, bot_x=104, bot_y=12, start="red"}, -- Teach no swapping when in doors
+    {name = "and it gets interesting", top_x=13, top_y=13, bot_x=25, bot_y=22, start="red"}, -- Corner-manuevering
+    {name = "a series of tubes", top_x=90, top_y=0, bot_x=102, bot_y=12, start="red"}, -- Teach no swapping when in doors
     {name = "nubbins", top_x=17, top_y=0, bot_x=27, bot_y=12, start="red"}, -- Enforce "nubbins"
     {name = "gridlock", top_x=62, top_y=0, bot_x=74, bot_y=12, start="red"}, -- Enforce no-swapping when in door regions
-    -- {name = "INC: where's red???...", top_x=16, top_y=55, bot_x=25, bot_y=63, start="blue"}, -- Teach: strength of triad formation (all players aligned)
+    {name = "fortress", top_x=0, top_y=0, bot_x=16, bot_y=12, start="red"}, -- Drag-along and triad
+    {name = "origin", top_x=75, top_y=5, bot_x=87, bot_y=16, start="red"}, -- Skill Check
     
     -- 4-player
+    {name = "down in a hole", top_x=16, top_y=24, bot_x=26, bot_y=34, start="red"}, -- Re-check w/4 
 }
 
 dialog = {
@@ -225,25 +224,19 @@ function _init()
     player = players[l_data.start]
 
     -- BUG: proceeds to the next level
-    -- menuitem(1, "reset level", function()
-    --     printh("reset level current_level: " ..current_level)
-    --     current_level = current_level - 1
-    --     if current_level < 1 then
-    --         current_level = 1
-    --     end
-    --     goals = {}
-    --     players = {}
-    --     load_level(current_level)
-    --     _, player = next(players)
-    -- end)
+    menuitem(1, "reset level", function()
+        goals = {}
+        players = {}
+        hints = {}
+        reload()
+        load_level(current_level)
+        local l_data = level_data[current_level]
+        player = players[l_data.start]
+    end)
 end
 
 function load_level(level_index)
     -- reset player position and other level-specific variables
-    -- if level_index > get_table_size(level_data) do
-    --     return
-    -- end
-
 	local l_data = level_data[level_index]
     local width = l_data.bot_x - l_data.top_x
     local height = l_data.bot_y - l_data.top_y
@@ -529,6 +522,7 @@ function _draw()
             end
         end
     else
+        -- Show THE END screen
         cls(0)
         map(115, 52, 0, 0, 13, 12)
     end
